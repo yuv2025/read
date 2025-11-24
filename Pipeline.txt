@@ -1,0 +1,640 @@
+Pipeline:
+CSV → AWS S3 → AWS Glue (PySpark ETL) → PostgreSQL (RDS) → Streamlit Dashboard → Auto Emails → Airflow Scheduling + CI/CD
+
+Each section contains: core topics, practical skills, checkpoints, and project ideas.
+
+1) Python — Foundation → Advanced
+
+Core basics
+
+Syntax, variables, types (str, int, float, bool)
+
+Control flow: if / for / while
+
+Functions: args/kwargs, return values
+
+Built-in data structures: list, tuple, set, dict
+
+Intermediate
+
+List/dict comprehensions
+
+Generators and iterators
+
+Context managers (with), file handling
+
+Modules & packages, __init__, module search path
+
+Virtual environments: venv, pipenv, poetry
+
+I/O & data
+
+CSV, JSON, Excel (csv, json, openpyxl, pandas)
+
+Working with files safely, large-file streaming
+
+Robust code
+
+Error handling (try/except), custom exceptions
+
+Logging: logging module, log levels, structured logging (JSON logs)
+
+Unit testing: unittest, pytest, mocking (pytest-mock)
+
+Type hints, mypy, docstrings, Sphinx basics
+
+Concurrency
+
+threading & GIL considerations
+
+multiprocessing for CPU-bound tasks
+
+asyncio for IO-bound tasks (when to use)
+
+Packaging & deployment
+
+Build and publish packages (wheel, twine) — for sharing utilities
+
+CLI tools with argparse / click
+
+Practical tasks
+
+Build modular extraction & transformation functions
+
+CLI for running ETL per date (e.g., python etl.py --date 2025-11-24)
+
+Unit tests for core transformation logic
+
+Checkpoint
+
+Can write tested, modular Python package + CLI + logging.
+
+2) Pandas — Data Wrangling & Reporting
+
+Basics
+
+pd.read_csv, read_excel, to_csv, to_excel
+
+DataFrame basics: .shape, .info(), .head()
+
+Indexing & selection
+
+.loc, .iloc, boolean masks
+
+chained indexing pitfalls
+
+Transformations
+
+apply, map, vectorized operations
+
+handling missing values: fillna, dropna
+
+Aggregation & pivot
+
+groupby, agg, transform
+
+pivot_table, melt, wide/long conversion
+
+Merges & joins
+
+merge left/right/inner/outer, concat, append
+
+deduplication strategies (drop_duplicates, duplicated)
+
+Datetime
+
+pd.to_datetime, dt accessor, resample, rolling, shift, end-of-month
+
+period and business day operations
+
+Performance
+
+dtype optimization, category, usecols, chunksize, iterator
+
+memory profiling (df.memory_usage())
+
+use parquet/feather for fast IO
+
+Excel reporting
+
+xlsxwriter integration, multiple sheets, header formatting, conditional formatting
+
+auto column widths, freeze panes, pivot sheets
+
+Practical tasks
+
+Build cleaning pipeline: type corrections, null handling, derived columns (DPD)
+
+Create MIS Excel with multiple sheets + pivot + conditional formatting
+
+Checkpoint
+
+Can process a 100k–500k file with memory-aware patterns and generate formatted Excel.
+
+3) PySpark — Big Data ETL (used locally & in Glue)
+
+Core concepts
+
+Spark architecture: Driver vs Executors, lazy evaluation
+
+SparkSession, DataFrame API vs RDD
+
+DataFrame operations
+
+select, filter, withColumn, drop, alias
+
+Handling schema: StructType, explicit schemas for reliability
+
+Joins & partitioning
+
+Join types, broadcast joins (when to use), shuffle issues
+
+Partitioning and re-partition tuning
+
+Window functions
+
+row_number, rank, lag, lead, partitionBy/orderBy patterns for DPD and ranking
+
+UDFs & performance
+
+Python UDFs vs pandas_udf (vectorized) — performance implications
+
+Avoid Python UDFs on large data when possible
+
+I/O & formats
+
+Parquet/ORC advantages, partitionBy, compression
+
+JDBC writes to Postgres (batch, partition, save mode)
+
+Work with S3 I/O (paths, credentials, eventual consistency)
+
+Optimization
+
+Caching, persist, partition pruning, explain plans
+
+Tuning executor and driver memory, cores, cluster config
+
+Spark SQL optimizations (broadcast, coalesce, repartition)
+
+Streaming (advanced)
+
+Structured Streaming basics (for near real-time)
+
+HWM (high watermark) handling
+
+Local dev
+
+Run small samples locally, unit-testing PySpark jobs
+
+spark-submit, dependency packaging, fat-jar/zip for job deployment
+
+Practical tasks
+
+Convert Pandas ETL to PySpark for 500k+ rows
+
+Write job that outputs partitioned Parquet by date to S3
+
+Checkpoint
+
+Can author a performant PySpark job that writes partitioned data and writes to Postgres/S3.
+
+4) PostgreSQL — Data Warehouse & Query Tuning
+
+SQL basics
+
+SELECT, WHERE, ORDER BY, LIMIT
+
+GROUP BY, HAVING, aggregates
+
+Joins & subqueries
+
+inner/left/right/full joins, correlated subqueries
+
+Window functions in SQL
+
+OVER, partitioning, moving aggregates
+
+Data modeling
+
+Star schema: facts & dimensions
+
+When to denormalize vs normalize for reporting
+
+Indexes
+
+B-tree, partial indexes, expression indexes
+
+Index selection & maintenance (VACUUM, analyze)
+
+Partitioning
+
+Range/list partitioning by date for huge tables
+
+Partition pruning for query performance
+
+Materialized views & refresh
+
+Use materialized views for heavy aggregates; schedule refresh
+
+Transactions & concurrency
+
+Isolation levels, deadlocks, locks, VACUUM, autovacuum tuning
+
+Bulk loads
+
+COPY from CSV/parquet for fast loads
+
+pg_bulkload or parallel loaders for large volumes
+
+Security
+
+Roles, grants, SSL/PG_HBA configurations, row-level security (RLS)
+
+Monitoring
+
+pg_stat_activity, pg_stat_statements, logs, slow query log
+
+Advanced
+
+Stored procedures (PL/pgSQL), extensions (PostGIS not needed here but useful to know), foreign data wrappers (FDW)
+
+Practical tasks
+
+Create dw.mis_daily_snapshot table and materialized views
+
+Create ETL audit tables (etl_runs) and email_logs
+
+Checkpoint
+
+Can design and optimize DW tables and read queries for the dashboard.
+
+5) Streamlit — Dashboard & UX for MIS
+
+Basics
+
+App structure, st.title, st.write, st.dataframe
+
+Inputs
+
+st.selectbox, st.multiselect, st.date_input, st.slider, st.text_input
+
+Layouts
+
+st.columns, st.tabs, sidebars, containers for responsive layout
+
+State & re-runs
+
+st.session_state, handlers to avoid full rerun, st.cache_data / st.cache_resource
+
+Performance
+
+Server-side pagination (fetch limited rows from DB)
+
+Caching queries, memoization, avoid loading entire DB
+
+Visualization
+
+Plotly, Altair, Matplotlib integration; KPI cards, trend charts, stacked bars
+
+Drilldowns (click chart → filter table)
+
+Export & download
+
+st.download_button for Excel/CSV; prepare files in-memory (BytesIO)
+
+Authentication
+
+Simple password-based or token-based auth
+
+Libraries: streamlit-authenticator or custom auth (JWT)
+
+Deployment
+
+Dockerize the Streamlit app
+
+Run on EC2, Streamlit Cloud, Railway; set up reverse proxy / domain and SSL
+
+Testing / Monitoring
+
+Health endpoints, basic logs, Sentry integration for exceptions
+
+Advanced
+
+Multi-page apps, role-based access (branch-level), custom components (React) if needed
+
+Practical tasks
+
+Build dashboard with date range picker, branch filters, KPI cards, export buttons
+
+Implement server-side search and pagination
+
+Checkpoint
+
+Can deploy Streamlit app on cloud and connect to Postgres safely.
+
+6) AWS Core — S3, EC2, Lambda, IAM
+
+AWS basics
+
+Account setup, regions, AZs, billing alerts
+
+IAM
+
+Users vs Roles, policies, least privilege, cross-account roles
+
+S3
+
+Buckets, objects, prefixes; versioning, lifecycle rules, encryption (SSE-S3 / SSE-KMS)
+
+Multipart upload for large files
+
+Bucket policies and ACLs, presigned URLs
+
+EC2
+
+Instance types, EBS volumes, security groups, IAM roles attached to instances
+
+AMIs, user-data for bootstrapping, autoscaling basics
+
+Lambda
+
+Create functions, environment variables, cold start considerations, timeouts
+
+S3 triggers to invoke Glue or Lambda upon new file
+
+Networking
+
+VPC, subnets, NAT gateway, route tables — basics required for RDS connectivity
+
+Security groups, NACLs
+
+Secrets management
+
+AWS Secrets Manager & Parameter Store usage patterns
+
+Monitoring
+
+CloudWatch logs & metrics, alarms, dashboards
+
+Cost & optimization
+
+S3 storage classes, lifecycle, spot instances, instance sizing
+
+Practical tasks
+
+Create S3 buckets with lifecycle, upload raw CSVs
+
+Create IAM role for Glue with S3 & RDS access
+
+Launch EC2 with Streamlit app, attach IAM role
+
+Checkpoint
+
+Can configure IAM with least privilege and set up S3 & RDS connectivity.
+
+7) AWS Glue — Managed ETL (PySpark)
+
+Glue architecture
+
+Data Catalog (metadata), Crawlers (discover schema), Jobs (ETL code), Workflows
+
+Crawlers
+
+Use to infer schema; manage classifiers; schedule or event-based
+
+Glue Jobs
+
+Author PySpark scripts; use built-in libraries; job parameters
+
+Job bookmarks for incremental processing
+
+Worker types and counts (G.1X, G.2X etc.)
+
+Glue Catalog & Tables
+
+Partition management, partitions projection, glue table vs underlying S3 path
+
+Dev endpoints
+
+Glue dev endpoints for iterative development; use notebooks or IDE
+
+Integration
+
+Read from S3, write partitioned Parquet to S3, write to RDS via JDBC
+
+Handling credentials via IAM roles, Secrets Manager
+
+Best practices
+
+Use Parquet + partitioning for downstream performance
+
+Schema evolution handling, data validation, error handling & dead-letter paths
+
+Cost tuning: job size, worker types, job concurrency
+
+Automation
+
+Trigger Glue jobs via CloudWatch events, Lambda, or Airflow operators
+
+Advanced
+
+Glue Studio visual jobs, Glue workflows for multi-job orchestration
+
+Practical tasks
+
+Create Glue Crawler, create Glue job (PySpark) that reads CSV, transforms, writes to Parquet & RDS
+
+Implement incremental processing using job bookmarks or watermark column
+
+Checkpoint
+
+Can author and run Glue jobs for daily incremental ETL.
+
+8) CI/CD & Containerization (Docker, GitHub Actions)
+
+Containers
+
+Dockerfile basics, image layers, image caching and multi-stage builds
+
+docker-compose for local multi-service stacks (Postgres + Streamlit + Airflow)
+
+Image management
+
+Tagging strategies, push to Docker Hub or AWS ECR
+
+CI
+
+Git workflows (feature branch, PR)
+
+GitHub Actions basics: workflow, jobs, steps, artifacts, secrets
+
+Linting & tests in pipeline (black, flake8, pytest)
+
+CD
+
+Deployment strategies: push to EC2 (SSH), ECS/EKS, Streamlit Cloud, or Railway
+
+Blue/Green or rolling deployments with health checks
+
+Infrastructure-as-code (intro)
+
+Terraform or CloudFormation basics for infra reproducibility
+
+Security & scanning
+
+Snyk/Trivy scanning of images, dependency checks
+
+Practical tasks
+
+Create GitHub Action to run tests, build docker image, push image to registry, and deploy to EC2
+
+Use secrets safely in workflows
+
+Checkpoint
+
+Automated pipeline that builds, tests and deploys code on push to main.
+
+9) Apache Airflow — Orchestration
+
+Core concepts
+
+DAGs, tasks, operators, dependencies, scheduling
+
+Operators
+
+PythonOperator, BashOperator, EmailOperator, S3ToRedshiftOperator-style (or custom)
+
+Sensors
+
+S3KeySensor, ExternalTaskSensor, watching for files or other jobs
+
+XCom
+
+Passing small messages between tasks; avoid passing large data
+
+Retries & SLAs
+
+Configure retries, backoff, on_failure callback, SLA misses and alerts
+
+Executors
+
+LocalExecutor, CeleryExecutor, KubernetesExecutor; trade-offs
+
+Deployment
+
+Airflow in Docker, Airflow on AWS MWAA, scaling executors
+
+Logging & monitoring
+
+Centralized logs, task logs, metrics (Prometheus), alerting (Slack/Email)
+
+Best practices
+
+Make tasks idempotent, keep tasks small & fast, leverage sensors sparingly
+
+Glue & Airflow
+
+Use AwsGlueJobOperator (or call Glue via boto3) to trigger Glue jobs
+
+Use Airflow to orchestrate extract → transform → load → reporting → notify
+
+Practical tasks
+
+Build DAG that: 1) triggers Glue job, 2) waits for completion, 3) runs a SQL refresh, 4) triggers report generation, 5) emails results
+
+Set up alerts on DAG failure
+
+Checkpoint
+
+Can orchestrate and monitor a production DAG that triggers Glue & notification steps.
+
+10) Production Patterns — Reliability, Security, Observability
+
+Idempotency & re-runs
+
+Design operations / loads so re-running a job doesn't duplicate data
+
+Observability
+
+Structured logs, metrics, traces; integrate OpenTelemetry if needed
+
+etl_runs audit table: run_id, start_time, end_time, status, rows_processed, error_message
+
+Data quality
+
+Checks: row counts, null thresholds, column-level checks, great_expectations integration
+
+Backups & recovery
+
+RDS automated snapshots, S3 versioning & lifecycle, DR plans
+
+Secrets & keys
+
+Use AWS Secrets Manager, rotate credentials, avoid secrets in code
+
+Cost management
+
+Monitor AWS costs, choose right instance types, use spot instances where possible
+
+Security
+
+TLS/SSL for DB connections, network policies, RLS if needed
+
+Testing
+
+Unit tests for logic, integration tests for DB interactions, end-to-end staging runs
+
+Checkpoint
+
+Production-ready pipeline with logging, alerts, retries, and cost-aware infra.
+
+Practical Capstone — End-to-End Project Outline
+
+Goal: Build and run the end-to-end pipeline once per day automatically.
+
+Flow
+
+Upload CSV to S3 (raw-bucket/YYYY/MM/DD/)
+
+Airflow triggers Glue job (or a scheduled CloudWatch event)
+
+Glue ETL (PySpark) reads CSV, transforms, writes partitioned Parquet to S3 and loads summary to RDS
+
+Materialized views refreshed in Postgres (or refresh via SQL task in Airflow)
+
+Streamlit dashboard reads from Postgres (cache) and shows MIS; users can export Excel
+
+Automated email job attaches generated Excel reports and sends to recipient list
+
+Airflow monitors success & sends alert on failures
+
+Deliverables
+
+Glue script (PySpark)
+
+Airflow DAG to coordinate jobs
+
+Streamlit app with authentication & export
+
+CI/CD pipelines for code deploy
+
+Monitoring + etl_runs logging + documentation
+
+Suggested Learning Sequence (short)
+
+Python basics → small Pandas projects (Days 1–14)
+
+SQL & Postgres (Days 15–21)
+
+PySpark local dev → convert Pandas pipeline to Spark (Days 22–28)
+
+AWS basics & Glue (Days 29–35)
+
+Streamlit dashboard + deploy (Days 36–42)
+
+Docker + CI/CD (Days 43–48)
+
+Airflow orchestration & monitoring (Days 49–60)
+
+Final capstone: combine all and deploy
